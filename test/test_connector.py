@@ -178,56 +178,78 @@ def test_arguments_decorator(
             "test-container2",
             "test-directory2/test-sub-dir2/test2.txt",
         ),
-        # (
-        #     "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
-        #     "test-account-2",
-        #     None,
-        #     None,
-        #     None,
-        #     "test-account",
-        #     "test-container",
-        #     "test-directory/test-sub-dir/test.txt",
-        # ),
-        # (
-        #     "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
-        #     "test-account-2",
-        #     "test-container-2",
-        #     None,
-        #     None,
-        #     "test-account",
-        #     "test-container",
-        #     "test-directory/test-sub-dir/test.txt",
-        # ),
-        # (
-        #     "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
-        #     "test-account-2",
-        #     "test-container-2",
-        #     "test-path",
-        #     None,
-        #     "test-account",
-        #     "test-container",
-        #     "test-directory/test-sub-dir/test.txt",
-        # ),
-        # (
-        #     None,
-        #     "test-account",
-        #     "test-container",
-        #     "test-path",
-        #     None,
-        #     "test-account",
-        #     "test-container",
-        #     "test-path",
-        # ),
-        # (
-        #     "azure://test-container/test-directory/test-sub-dir/test.txt",
-        #     "test-account-2",
-        #     "test-container-2",
-        #     "test-path",
-        #     None,
-        #     "test-account-2",
-        #     "test-container",
-        #     "test-directory/test-sub-dir/test.txt",
-        # ),
+        (
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            "https://test-account2.blob.core.windows.net/test-container2/test-directory2/test-sub-dir2/test2.txt",
+            None,
+            None,
+            None,
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+        ),
+        (
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+        ),
+        (
+            "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+            "test-account3",
+            "test-container3",
+            "test-directory/test-sub-dir/test3.txt",
+            "https://test-account2.blob.core.windows.net/test-container2/test-directory2/test-sub-dir2/test2.txt",
+            "test-account4",
+            "test-container4",
+            "test-directory/test-sub-dir/test4.txt",
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+        ),
+        (
+            "azure://test-container4/dir/test.txt",
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            "https://test-account2.blob.core.windows.net/test-container2/test-directory2/test-sub-dir2/test2.txt",
+            None,
+            None,
+            None,
+            None,
+            "test-account",
+            "test-container4",
+            "dir/test.txt",
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+        ),
     ],
 )
 def test_multi_arguments_decorator(
@@ -283,22 +305,37 @@ def test_multi_arguments_decorator(
     assert r_dest_container == ex_dest_container
     assert r_dest_file_path == ex_dest_file_path
 
-    # assert r_path == expected_path
-    # assert r_storage_account == expected_storage_account
-    # assert r_container == expected_container
-    # assert r_file_path == expected_file_path
+
 
     # Assert passes right params if connector IS init with params
-    # con_init = MockConnector(storage_account=storage_account, container=container)
+    con = MockConnector(storage_account=source_storage_account, container=source_container)
 
-    # r_path, r_storage_account, r_container, r_file_path = con_init.multi_func(
-    #     path=path, file_path=file_path
-    # )
+    (
+        r_source_path,
+        r_source_storage_account,
+        r_source_container,
+        r_source_file_path,
+        r_dest_path,
+        r_dest_storage_account,
+        r_dest_container,
+        r_dest_file_path,
+    ) = con.multi_func(
+        source_path=source_path,
+        source_file_path=source_file_path,
+        dest_path=dest_path,
+        dest_storage_account=dest_storage_account,
+        dest_container=dest_container,
+        dest_file_path=dest_file_path,
+    )
 
-    # assert r_path == expected_path
-    # assert r_storage_account == expected_storage_account
-    # assert r_container == expected_container
-    # assert r_file_path == expected_file_path
+    assert r_source_path == ex_source_path
+    assert r_source_storage_account == ex_source_storage_account
+    assert r_source_container == ex_source_container
+    assert r_source_file_path == ex_source_file_path
+    assert r_dest_path == ex_dest_path
+    assert r_dest_storage_account == ex_dest_storage_account
+    assert r_dest_container == ex_dest_container
+    assert r_dest_file_path == ex_dest_file_path
 
 
 @pytest.mark.parametrize(
