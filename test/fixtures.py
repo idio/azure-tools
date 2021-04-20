@@ -1,12 +1,13 @@
 import pytest
 from unittest.mock import patch
+from args_handler import arguments_decorator, multi_arguments_decorator
 from connector import *
 
 
 @pytest.fixture
 def patched_creds_connector():
     """
-    For this connector just the DefaultAzureCredential class is patched, allowing for mocking 
+    For this connector just the DefaultAzureCredential class is patched, allowing for mocking
     of the other azure classes specifically for the test
     The connector class returned can be intialised with path, storage_account, container just like normal.
 
@@ -16,7 +17,8 @@ def patched_creds_connector():
     :param file_path: str: optional Ignored. Defaults to None.
 
     :return str: A Connector class intialised with the parameters above and with credential azure library patched
-    """    
+    """
+
     def connector_factory(*args, **kwargs):
         with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
             return Connector(*args, **kwargs)
@@ -36,7 +38,8 @@ def patched_connector():
     :param file_path: str: optional Ignored. Defaults to None.
 
     :return str: A Connector class intialised with the parameters above and with mocked azure libraries patched
-    """    
+    """
+
     def connector_factory(*args, **kwargs):
         with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
             with patch("connector.BlobServiceClient") as mock_client:
@@ -72,6 +75,29 @@ class MockConnector:
         file_path: str = None,
     ):
         return path, storage_account, container, file_path
+
+    @multi_arguments_decorator
+    def multi_func(
+        self,
+        source_path: str = None,
+        source_storage_account: str = None,
+        source_container: str = None,
+        source_file_path: str = None,
+        dest_path: str = None,
+        dest_storage_account: str = None,
+        dest_container: str = None,
+        dest_file_path: str = None,
+    ):
+        return (
+            source_path,
+            source_storage_account,
+            source_container,
+            source_file_path,
+            dest_path,
+            dest_storage_account,
+            dest_container,
+            dest_file_path,
+        )
 
     def parse_azure_path(self, path: str) -> dict:
         with patch("connector.DefaultAzureCredential", return_value="mock-cred"):

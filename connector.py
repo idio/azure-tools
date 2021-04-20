@@ -1,6 +1,7 @@
 # from typing import Container, Iterable
 # from utils import get_blob_storage_url, parse_azure_path
-from utils import get_blob_storage_url
+
+from args_handler import arguments_decorator
 from azure.identity._credentials.default import DefaultAzureCredential
 
 # from azure.storage import blob
@@ -10,51 +11,6 @@ from azure.storage.blob import BlobServiceClient, ContainerClient
 # from azure.identity import DefaultAzureCredential
 # from six import Iterator
 import re
-
-
-def arguments_decorator(func):
-    #         @wraps(func)
-    def wrapper(*args, **kwargs):
-        inst = args[0]
-        if kwargs.get("path", None):
-
-            paths = inst.parse_azure_path(kwargs["path"])
-            storage_account = (
-                paths["storage_account"]
-                if paths["storage_account"]
-                else kwargs.get("storage_account", None)
-            )
-
-            if storage_account is None:
-                raise ValueError(
-                    "To use a path of the form azure://container/path you must initialise the connector with the storage account or pass the account name to the function"
-                )
-            return func(
-                *args,
-                storage_account=storage_account,
-                container=paths["container"],
-                file_path=paths["file_path"],
-            )
-        else:
-            storage_account = (
-                kwargs.get("storage_account", None)
-                if kwargs.get("storage_account", None)
-                else inst.storage_account
-            )
-            container = (
-                kwargs.get("container", None)
-                if kwargs.get("container", None)
-                else inst.container
-            )
-            file_path = kwargs.get("file_path", None)
-            return func(
-                *args,
-                storage_account=storage_account,
-                container=container,
-                file_path=file_path,
-            )
-
-    return wrapper
 
 
 class Connector:
@@ -128,7 +84,7 @@ class Connector:
 
         if path.startswith("https://"):
             storage_account = re.findall(
-                "https://(.*)\.blob\.core\.windows\.net", path
+                r"https://(.*)\.blob\.core\.windows\.net", path
             )[0]
             path = path.replace(f"https://{storage_account}.blob.core.windows.net/", "")
             split_path = path.split("/")
@@ -230,5 +186,48 @@ class Connector:
         container_client = self.get_container_client(
             storage_account=storage_account, container=container
         )
-        blob_iter = container_client.list_blobs(name_starts_with=file_path)
-        return [blob.name.replace(file_path, "") for blob in blob_iter]
+        if file_path:
+            ValueError("Nah")
+            blob_iter = container_client.list_blobs(name_starts_with=file_path)
+            return [blob.name.replace(file_path, "") for blob in blob_iter]
+        else:
+            ValueError("here")
+            blob_iter = container_client.list_blobs()
+            return [blob.name for blob in blob_iter]
+    
+    # def copy(self, )
+
+
+# def copy_blob_folder(blob_path, local_path):
+#     """
+#     copies all files from blobpath folder into local_path
+#     """
+#     client = client_from_blobstorage()
+#     # get azure://{container_name}/....
+#     parsed_path = parse_azure_blob_path(blob_path)
+#     os.makedirs(local_path, exist_ok=True)
+#     container_client = client.get_container_client(parsed_path['container'])
+#     for blob in container_client.list_blobs(parsed_path['path']):
+#         filename = os.path.basename(blob.name)
+#         p = os.path.join(local_path, filename)
+#         print("path: %s" % p)
+#         with open(p, "wb") as o:
+#             blob_data = container_client.download_blob(blob.name)
+#             blob_data.readinto(o)
+
+# def copy_blob_folder(blob_path, local_path):
+#     """
+#     copies all files from blobpath folder into local_path
+#     """
+#     client = client_from_blobstorage()
+#     # get azure://{container_name}/....
+#     parsed_path = parse_azure_blob_path(blob_path)
+#     os.makedirs(local_path, exist_ok=True)
+#     container_client = client.get_container_client(parsed_path["container"])
+#     for blob in container_client.list_blobs(parsed_path["path"]):
+#         filename = os.path.basename(blob.name)
+#         p = os.path.join(local_path, filename)
+#         print("path: %s" % p)
+#         with open(p, "wb") as o:
+#             blob_data = container_client.download_blob(blob.name)
+#             blob_data.readinto(o)

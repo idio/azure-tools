@@ -155,6 +155,153 @@ def test_arguments_decorator(
 
 
 @pytest.mark.parametrize(
+    """
+    source_path, source_storage_account, source_container, source_file_path, dest_path, dest_storage_account, dest_container, dest_file_path,
+    ex_source_path, ex_source_storage_account, ex_source_container, ex_source_file_path, ex_dest_path, ex_dest_storage_account, ex_dest_container, ex_dest_file_path,
+    """,
+    [
+        (
+            "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+            None,
+            None,
+            None,
+            "https://test-account2.blob.core.windows.net/test-container2/test-directory2/test-sub-dir2/test2.txt",
+            None,
+            None,
+            None,
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+        ),
+        # (
+        #     "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+        #     "test-account-2",
+        #     None,
+        #     None,
+        #     None,
+        #     "test-account",
+        #     "test-container",
+        #     "test-directory/test-sub-dir/test.txt",
+        # ),
+        # (
+        #     "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+        #     "test-account-2",
+        #     "test-container-2",
+        #     None,
+        #     None,
+        #     "test-account",
+        #     "test-container",
+        #     "test-directory/test-sub-dir/test.txt",
+        # ),
+        # (
+        #     "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+        #     "test-account-2",
+        #     "test-container-2",
+        #     "test-path",
+        #     None,
+        #     "test-account",
+        #     "test-container",
+        #     "test-directory/test-sub-dir/test.txt",
+        # ),
+        # (
+        #     None,
+        #     "test-account",
+        #     "test-container",
+        #     "test-path",
+        #     None,
+        #     "test-account",
+        #     "test-container",
+        #     "test-path",
+        # ),
+        # (
+        #     "azure://test-container/test-directory/test-sub-dir/test.txt",
+        #     "test-account-2",
+        #     "test-container-2",
+        #     "test-path",
+        #     None,
+        #     "test-account-2",
+        #     "test-container",
+        #     "test-directory/test-sub-dir/test.txt",
+        # ),
+    ],
+)
+def test_multi_arguments_decorator(
+    source_path,
+    source_storage_account,
+    source_container,
+    source_file_path,
+    dest_path,
+    dest_storage_account,
+    dest_container,
+    dest_file_path,
+    ex_source_path,
+    ex_source_storage_account,
+    ex_source_container,
+    ex_source_file_path,
+    ex_dest_path,
+    ex_dest_storage_account,
+    ex_dest_container,
+    ex_dest_file_path,
+):
+    """
+    Tests the handling of arguments for a function in connector class
+    """
+    # Assert passes right params if connector not init with params
+    con = MockConnector()
+
+    (
+        r_source_path,
+        r_source_storage_account,
+        r_source_container,
+        r_source_file_path,
+        r_dest_path,
+        r_dest_storage_account,
+        r_dest_container,
+        r_dest_file_path,
+    ) = con.multi_func(
+        source_path=source_path,
+        source_storage_account=source_storage_account,
+        source_container=source_container,
+        source_file_path=source_file_path,
+        dest_path=dest_path,
+        dest_storage_account=dest_storage_account,
+        dest_container=dest_container,
+        dest_file_path=dest_file_path,
+    )
+
+    assert r_source_path == ex_source_path
+    assert r_source_storage_account == ex_source_storage_account
+    assert r_source_container == ex_source_container
+    assert r_source_file_path == ex_source_file_path
+    assert r_dest_path == ex_dest_path
+    assert r_dest_storage_account == ex_dest_storage_account
+    assert r_dest_container == ex_dest_container
+    assert r_dest_file_path == ex_dest_file_path
+
+    # assert r_path == expected_path
+    # assert r_storage_account == expected_storage_account
+    # assert r_container == expected_container
+    # assert r_file_path == expected_file_path
+
+    # Assert passes right params if connector IS init with params
+    # con_init = MockConnector(storage_account=storage_account, container=container)
+
+    # r_path, r_storage_account, r_container, r_file_path = con_init.multi_func(
+    #     path=path, file_path=file_path
+    # )
+
+    # assert r_path == expected_path
+    # assert r_storage_account == expected_storage_account
+    # assert r_container == expected_container
+    # assert r_file_path == expected_file_path
+
+
+@pytest.mark.parametrize(
     "path, storage_account, container, file_path, exception",
     [
         (
@@ -323,6 +470,7 @@ def test_get_container_client(
             container=container
         )
 
+
 @pytest.mark.parametrize(
     "path, storage_account, container, file_path, expected_blob_url",
     [
@@ -331,7 +479,7 @@ def test_get_container_client(
             "test-account",
             None,
             None,
-            "https://test-account.blob.core.windows.net/"
+            "https://test-account.blob.core.windows.net/",
         )
     ],
 )
@@ -365,4 +513,20 @@ def test_get_blob_service_client(
             container=container,
             file_path=file_path,
         )
-        mock_bs_client.assert_called_with(credential="mock-cred", account_url=expected_blob_url)
+        mock_bs_client.assert_called_with(
+            credential="mock-cred", account_url=expected_blob_url
+        )
+
+
+# def test_list_blobs(patched_connector):
+#     with patch("connector.ContainerClient") as mock_con_client:
+#         def mock_blob():
+#             pass
+
+#         mock_blob.name = "blob"
+#         mock_con_client.return_value.list_blobs.return_value = [mock_blob]
+
+#         con = patched_connector()
+#         result = con.list_blobs(storage_account="storage", container="container")
+#         # mock_con_client.return_value.list_blobs.assert_called_with()
+#         # assert result == ["blob"]
