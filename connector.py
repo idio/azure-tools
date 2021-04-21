@@ -1,7 +1,7 @@
 # from typing import Container, Iterable
 # from utils import get_blob_storage_url, parse_azure_path
 
-from args_handler import arguments_decorator
+from args_handler import arguments_decorator, multi_arguments_decorator
 from azure.identity._credentials.default import DefaultAzureCredential
 
 # from azure.storage import blob
@@ -104,6 +104,20 @@ class Connector:
             "container": container,
             "file_path": filepath,
         }
+    
+    def is_azure_path(self, path: str) -> bool:
+        """
+        Returns true if the path is of a recognised azure path format
+
+        :param path: str: The path to test
+
+        :return bool: True if path is of an accepted azure path format
+        """        
+        patterns = [
+            r"https://.*\.blob.core.windows.net",
+            r"azure://"
+        ]
+        return any([bool(re.match(p, path)) for p in patterns])
 
     @arguments_decorator
     def get_blob_service_client(
@@ -195,7 +209,22 @@ class Connector:
             blob_iter = container_client.list_blobs()
             return [blob.name for blob in blob_iter]
     
-    # def copy(self, )
+    @multi_arguments_decorator
+    def copy(
+        self,
+        source_path: str = None,
+        source_storage_account: str = None,
+        source_container: str = None,
+        source_file_path: str = None,
+        dest_path: str = None,
+        dest_storage_account: str = None,
+        dest_container: str = None,
+        dest_file_path: str = None,
+    ):
+        container_client = self.get_container_client(
+            storage_account=source_storage_account, container=source_container
+        )
+
 
 
 # def copy_blob_folder(blob_path, local_path):

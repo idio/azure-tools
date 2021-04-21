@@ -47,6 +47,36 @@ def test_parse_azure_path(path, storage_account, expected):
     parsed_path = con.parse_azure_path(path)
     assert parsed_path == expected
 
+@pytest.mark.parametrize(
+    "path, expected",
+    [
+        (
+            "azure://test-container/test-folder/test-subfolder/file.txt",
+            True
+        ),
+        (
+            "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+            True
+        ),
+        (
+            "/home/user/docs/files",
+            False
+        ),
+        (
+            "./this/and/that",
+            False
+        ),
+        (
+            "~/that/and/this",
+            False
+        )
+    ]
+)
+def test_is_azure_path(path, expected, patched_connector):
+    con = patched_connector()
+    result = con.is_azure_path(path)
+    assert expected == result
+
 
 @pytest.mark.parametrize(
     "path, storage_account, container, file_path, expected_path, expected_storage_account, expected_container, expected_file_path",
