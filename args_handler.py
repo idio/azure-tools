@@ -1,3 +1,54 @@
+# def arguments_decorator(local_support=False):
+#     def decorator(func):
+#         def wrapper(*args, **kwargs):
+#             inst = args[0]
+#             path = kwargs.get("path", None)
+#             storage_account = kwargs.get("storage_account", None)
+#             container = kwargs.get("container", None)
+#             file_path = kwargs.get("file_path", None)
+
+#             if path:
+#                 if inst.is_azure_path(path):
+#                     paths = inst.parse_azure_path(kwargs["path"])
+#                     storage_account = (
+#                         paths["storage_account"]
+#                         if paths["storage_account"]
+#                         else storage_account
+#                     )
+
+#                     if storage_account is None:
+#                         raise ValueError(
+#                             "To use a path of the form azure://container/path you must initialise the connector with the storage account or pass the account name to the function"
+#                         )
+#                     return func(
+#                         *args,
+#                         storage_account=storage_account,
+#                         container=paths["container"],
+#                         file_path=paths["file_path"],
+#                     )
+#                 elif local_support:
+#                     return func(*args, path=path)
+#                 else:
+#                     raise ValueError(
+#                         f"Path: {path} is not an azure path and local_support is not enabled. Try enabling for this function in the args handler decorator"
+#                     )
+#             else:
+#                 storage_account = (
+#                     storage_account if storage_account else inst.storage_account
+#                 )
+#                 container = container if container else inst.container
+#                 file_path = file_path
+#                 return func(
+#                     *args,
+#                     storage_account=storage_account,
+#                     container=container,
+#                     file_path=file_path,
+#                 )
+
+#         return wrapper
+
+#     return decorator
+
 def arguments_decorator(local_support=False):
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -9,7 +60,7 @@ def arguments_decorator(local_support=False):
 
             if path:
                 if inst.is_azure_path(path):
-                    paths = inst.parse_azure_path(kwargs["path"])
+                    paths = inst.parse_azure_path(path)
                     storage_account = (
                         paths["storage_account"]
                         if paths["storage_account"]
@@ -20,30 +71,27 @@ def arguments_decorator(local_support=False):
                         raise ValueError(
                             "To use a path of the form azure://container/path you must initialise the connector with the storage account or pass the account name to the function"
                         )
-                    return func(
-                        *args,
-                        storage_account=storage_account,
-                        container=paths["container"],
-                        file_path=paths["file_path"],
-                    )
+                    kwargs["path"] = None
+                    kwargs["storage_account"] = storage_account
+                    kwargs["container"] = paths["container"]
+                    kwargs["file_path"] = paths["file_path"]
                 elif local_support:
-                    return func(*args, path=path)
+                    kwargs["path"] = path
+                    kwargs["storage_account"] = None
+                    kwargs["container"] = None
+                    kwargs["file_path"] = None
                 else:
                     raise ValueError(
                         f"Path: {path} is not an azure path and local_support is not enabled. Try enabling for this function in the args handler decorator"
                     )
             else:
-                storage_account = (
+                kwargs["path"] = None
+                kwargs["storage_account"] = (
                     storage_account if storage_account else inst.storage_account
                 )
-                container = container if container else inst.container
-                file_path = file_path
-                return func(
-                    *args,
-                    storage_account=storage_account,
-                    container=container,
-                    file_path=file_path,
-                )
+                kwargs["container"] = container if container else inst.container
+                kwargs["file_path"] = file_path
+            return func(*args, **kwargs)
 
         return wrapper
 

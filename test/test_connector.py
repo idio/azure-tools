@@ -68,7 +68,7 @@ def test_is_azure_path(path, expected, patched_connector):
 
 
 @pytest.mark.parametrize(
-    "path, storage_account, container, file_path, expected_path, expected_storage_account, expected_container, expected_file_path",
+    "path, storage_account, container, file_path, extra, expected_path, expected_storage_account, expected_container, expected_file_path, expected_extra",
     [
         (
             "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
@@ -76,9 +76,11 @@ def test_is_azure_path(path, expected, patched_connector):
             None,
             None,
             None,
+            None,
             "test-account",
             "test-container",
             "test-directory/test-sub-dir/test.txt",
+            None
         ),
         (
             "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
@@ -86,29 +88,35 @@ def test_is_azure_path(path, expected, patched_connector):
             None,
             None,
             None,
-            "test-account",
-            "test-container",
-            "test-directory/test-sub-dir/test.txt",
-        ),
-        (
-            "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
-            "test-account-2",
-            "test-container-2",
-            None,
             None,
             "test-account",
             "test-container",
             "test-directory/test-sub-dir/test.txt",
+            None,
         ),
         (
             "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
             "test-account-2",
             "test-container-2",
-            "test-path",
+            None,
+            None,
             None,
             "test-account",
             "test-container",
             "test-directory/test-sub-dir/test.txt",
+            None,
+        ),
+        (
+            "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+            "test-account-2",
+            "test-container-2",
+            "test-path",
+            None,
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            None,
         ),
         (
             None,
@@ -116,9 +124,11 @@ def test_is_azure_path(path, expected, patched_connector):
             "test-container",
             "test-path",
             None,
+            None,
             "test-account",
             "test-container",
             "test-path",
+            None,
         ),
         (
             "azure://test-container/test-directory/test-sub-dir/test.txt",
@@ -126,9 +136,23 @@ def test_is_azure_path(path, expected, patched_connector):
             "test-container-2",
             "test-path",
             None,
+            None,
             "test-account-2",
             "test-container",
             "test-directory/test-sub-dir/test.txt",
+            None,
+        ),
+        (
+            "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
+            None,
+            None,
+            None,
+            "test-arg",
+            None,
+            "test-account",
+            "test-container",
+            "test-directory/test-sub-dir/test.txt",
+            "test-arg"
         ),
     ],
 )
@@ -137,10 +161,12 @@ def test_arguments_decorator(
     storage_account,
     container,
     file_path,
+    extra,
     expected_path,
     expected_storage_account,
     expected_container,
     expected_file_path,
+    expected_extra
 ):
     """
     Tests the handling of arguments for a function in connector class
@@ -181,6 +207,23 @@ def test_arguments_decorator(
     assert r_storage_account == expected_storage_account
     assert r_container == expected_container
     assert r_file_path == expected_file_path
+
+    # Assert passes right params if function has extra parameters
+    con = MockConnector()
+
+    r_path, r_storage_account, r_container, r_file_path, r_extra = con.func_extra_args(
+        path=path,
+        storage_account=storage_account,
+        container=container,
+        file_path=file_path,
+        extra=extra
+    )
+
+    assert r_path == expected_path
+    assert r_storage_account == expected_storage_account
+    assert r_container == expected_container
+    assert r_file_path == expected_file_path
+    assert r_extra == expected_extra
 
 
 def test_arguments_decorator_with_local_path():
