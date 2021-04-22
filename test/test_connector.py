@@ -47,30 +47,19 @@ def test_parse_azure_path(path, storage_account, expected):
     parsed_path = con.parse_azure_path(path)
     assert parsed_path == expected
 
+
 @pytest.mark.parametrize(
     "path, expected",
     [
-        (
-            "azure://test-container/test-folder/test-subfolder/file.txt",
-            True
-        ),
+        ("azure://test-container/test-folder/test-subfolder/file.txt", True),
         (
             "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
-            True
+            True,
         ),
-        (
-            "/home/user/docs/files",
-            False
-        ),
-        (
-            "./this/and/that",
-            False
-        ),
-        (
-            "~/that/and/this",
-            False
-        )
-    ]
+        ("/home/user/docs/files", False),
+        ("./this/and/that", False),
+        ("~/that/and/this", False),
+    ],
 )
 def test_is_azure_path(path, expected, patched_connector):
     con = patched_connector()
@@ -182,6 +171,39 @@ def test_arguments_decorator(
     assert r_storage_account == expected_storage_account
     assert r_container == expected_container
     assert r_file_path == expected_file_path
+
+    # Assert passes when decorator is set to support local_paths
+    r_path, r_storage_account, r_container, r_file_path = con_init.func_local(
+        path=path, file_path=file_path
+    )
+
+    assert r_path == expected_path
+    assert r_storage_account == expected_storage_account
+    assert r_container == expected_container
+    assert r_file_path == expected_file_path
+
+
+def test_arguments_decorator_with_local_path():
+    con = MockConnector()
+    r_path, r_storage_account, r_container, r_file_path = con.func_local(
+        path="./local-dir/local_file.txt",
+        storage_account=None,
+        container=None,
+        file_path=None,
+    )
+
+    assert r_path == "./local-dir/local_file.txt"
+    assert r_storage_account == None
+    assert r_container == None
+    assert r_file_path == None
+
+    with pytest.raises(ValueError):
+        con.func(
+            path="./local-dir/local_file.txt",
+            storage_account=None,
+            container=None,
+            file_path=None,
+        )
 
 
 @pytest.mark.parametrize(
@@ -335,10 +357,10 @@ def test_multi_arguments_decorator(
     assert r_dest_container == ex_dest_container
     assert r_dest_file_path == ex_dest_file_path
 
-
-
     # Assert passes right params if connector IS init with params
-    con = MockConnector(storage_account=source_storage_account, container=source_container)
+    con = MockConnector(
+        storage_account=source_storage_account, container=source_container
+    )
 
     (
         r_source_path,

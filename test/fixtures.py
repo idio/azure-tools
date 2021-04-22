@@ -66,8 +66,18 @@ class MockConnector:
         self.storage_account = storage_account
         self.container = container
 
-    @arguments_decorator
+    @arguments_decorator()
     def func(
+        self,
+        path: str = None,
+        storage_account: str = None,
+        container: str = None,
+        file_path: str = None,
+    ):
+        return path, storage_account, container, file_path
+
+    @arguments_decorator(local_support=True)
+    def func_local(
         self,
         path: str = None,
         storage_account: str = None,
@@ -113,3 +123,9 @@ class MockConnector:
                     storage_account=self.storage_account, container=self.container
                 )
                 return con.parse_azure_path(path)
+
+    def is_azure_path(self, path: str) -> bool:
+        with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
+            with patch("connector.BlobServiceClient"):
+                con = Connector()
+                return con.is_azure_path(path)

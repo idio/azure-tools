@@ -49,7 +49,7 @@ class Connector:
                         f"The container: {self.container} is not in the storage account: {self.storage_account}"
                     )
 
-    @arguments_decorator
+    @arguments_decorator()
     def get_blob_storage_url(
         self,
         path: str = None,
@@ -119,7 +119,7 @@ class Connector:
         ]
         return any([bool(re.match(p, path)) for p in patterns])
 
-    @arguments_decorator
+    @arguments_decorator()
     def get_blob_service_client(
         self,
         path: str = None,
@@ -147,7 +147,7 @@ class Connector:
                 credential=self.credential, account_url=blob_storage_url
             )
 
-    @arguments_decorator
+    @arguments_decorator()
     def get_container_client(
         self,
         path: str = None,
@@ -179,7 +179,7 @@ class Connector:
                     f"The container: {container} is not in the storage account: {storage_account}"
                 )
 
-    @arguments_decorator
+    @arguments_decorator()
     def list_blobs(
         self,
         path: str = None,
