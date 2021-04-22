@@ -10,6 +10,7 @@ from azure.storage.blob import BlobServiceClient, ContainerClient
 # from azure.common.client_factory import get_client_from_cli_profile
 # from azure.identity import DefaultAzureCredential
 # from six import Iterator
+import smart_open
 import logging
 import re
 import os
@@ -316,25 +317,37 @@ class Connector:
                 with open(file_path, "rb") as data:
                     container_client.upload_blob(name=blob_path, data=data)
     
-    # @arguments_decorator(local_support=True)
-    # def open(
-    #     self,
-    #     path: str = None,
-    #     storage_account: str = None,
-    #     container: str = None,
-    #     file_path: str = None,
-    #     mode="r", 
-    #     *args, **kwargs
-    #     ):
-    #     """
-    #     wrapper around smart_open so we dont have to pass a blob client everywhere.
-    #     """
-    #     if not path.startswith("azure://") and "w" in mode:
-    #         # if it is local write mode, check the path and create folder if needed
-    #         subdir = os.path.dirname(path)
-    #         if subdir:
-    #             os.makedirs(subdir, exist_ok=True)
-    #     transport_params = {"client": get_or_create_blob_client()}
-    #     if "transport_params" not in kwargs:
-    #         kwargs["transport_params"] = transport_params
-    #     return smart_open.open(path, mode, *args, **kwargs)
+    @arguments_decorator(local_support=True)
+    def open(
+        self,
+        path: str = None,
+        storage_account: str = None,
+        container: str = None,
+        file_path: str = None,
+        mode="r", 
+        *args, **kwargs
+        ):
+        """
+        wrapper around smart_open so we dont have to pass a blob client everywhere.
+
+        :param path: str: optional Local or azure path. Defaults to None.
+        :param storage_account: str: optional name of storage account. Defaults to None.
+        :param container: str: optional container name. Defaults to None.
+        :param file_path: str: optional path to file. Defaults to None.
+        :param mode: str: optional open mode. Defaults to "r".
+
+        :return [smart_open.open]: Opens both local and azure files
+        """        
+        if path and not self.is_azure_path(path) and "w" in mode:
+                # if it is local write mode, check the path and create folder if needed
+                subdir = os.path.dirname(path)
+                if subdir:
+                    os.makedirs(subdir, exist_ok=True)
+        if storage_account:
+            transport_params = {"client": self.get_blob_service_client(storage_account=storage_account)}
+        else:
+            transport_params = {"client": None}
+        if "transport_params" not in kwargs:
+            kwargs["transport_params"] = transport_params
+        path = path if path else f"azure://{container}/{file_path}"
+        return smart_open.open(path, mode, *args, **kwargs)
