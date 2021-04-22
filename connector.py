@@ -10,11 +10,15 @@ from azure.storage.blob import BlobServiceClient, ContainerClient
 # from azure.common.client_factory import get_client_from_cli_profile
 # from azure.identity import DefaultAzureCredential
 # from six import Iterator
+import logging
 import re
+import os
 
 
 class Connector:
     def __init__(self, path=None, storage_account=None, container=None):
+
+        logging.basicConfig(level=logging.INFO)
 
         self.storage_account = storage_account
         self.container = container
@@ -29,7 +33,7 @@ class Connector:
 
         # Create class wide storage account and container clients if names are passed
         if self.storage_account:
-            blob_storage_url = self.get_blob_storage_url(self.storage_account)
+            blob_storage_url = self.get_blob_storage_url(storage_account=self.storage_account)
             self.blob_service_client = BlobServiceClient(
                 credential=self.credential, account_url=blob_storage_url
             )
@@ -201,16 +205,14 @@ class Connector:
             storage_account=storage_account, container=container
         )
         if file_path:
-            ValueError("Nah")
             blob_iter = container_client.list_blobs(name_starts_with=file_path)
             return [blob.name.replace(file_path, "") for blob in blob_iter]
         else:
-            ValueError("here")
             blob_iter = container_client.list_blobs()
             return [blob.name for blob in blob_iter]
     
-    @multi_arguments_decorator
-    def copy(
+    @multi_arguments_decorator(local_support=True)
+    def download_folder(
         self,
         source_path: str = None,
         source_storage_account: str = None,
@@ -221,42 +223,118 @@ class Connector:
         dest_container: str = None,
         dest_file_path: str = None,
     ):
+        """
+        Copy a folder from azure to a local path
+
+        :param source_path: str: optional An Azure path to the folder to download. Defaults to None.
+        :param source_storage_account: str: optional The storage account name. Defaults to None.
+        :param source_container: str: optional The container name. Defaults to None.
+        :param source_file_path: str: optional The path to the folder to download. Defaults to None.
+        :param dest_path: str: optional The local path to download the folder to. Defaults to None.
+        :param dest_storage_account: str: optional Ignored. Defaults to None.
+        :param dest_container: str: optional Ignored. Defaults to None.
+        :param dest_file_path: str: optional Ignored. Defaults to None.
+
+        :exception ValueError: Raised when destination path is an azure path
+        """    
         container_client = self.get_container_client(
             storage_account=source_storage_account, container=source_container
         )
 
+        if self.is_azure_path(dest_path): raise ValueError(f"Expected destination to be local path got azure path: {dest_path}")
+        os.makedirs(dest_path, exist_ok=True)
 
+        for blob in container_client.list_blobs(source_file_path):
+            file_name = os.path.basename(blob.name)
+            local_path = os.path.join(dest_path, file_name)
+            with open(local_path, "wb") as f:
+                logging.info(f"Downloading {blob.name} to {local_path}")
+                blob_data = container_client.download_blob(blob.name)
+                blob_data.readinto(f)
+            logging.info("Completed Download")
+    
+    @arguments_decorator()
+    def blob_exists(
+        self,
+        path: str = None,
+        storage_account: str = None,
+        container: str = None,
+        file_path: str = None,
+    ):
+        """
+        Checks if a file exists in azure, return bool
 
-# def copy_blob_folder(blob_path, local_path):
-#     """
-#     copies all files from blobpath folder into local_path
-#     """
-#     client = client_from_blobstorage()
-#     # get azure://{container_name}/....
-#     parsed_path = parse_azure_blob_path(blob_path)
-#     os.makedirs(local_path, exist_ok=True)
-#     container_client = client.get_container_client(parsed_path['container'])
-#     for blob in container_client.list_blobs(parsed_path['path']):
-#         filename = os.path.basename(blob.name)
-#         p = os.path.join(local_path, filename)
-#         print("path: %s" % p)
-#         with open(p, "wb") as o:
-#             blob_data = container_client.download_blob(blob.name)
-#             blob_data.readinto(o)
+        :param path: str: optional Azure path to file to check. Defaults to None.
+        :param storage_account: str: optional Storage account. Defaults to None.
+        :param container: str: optional Container. Defaults to None.
+        :param file_path: str: optional path to file. Defaults to None.
 
-# def copy_blob_folder(blob_path, local_path):
-#     """
-#     copies all files from blobpath folder into local_path
-#     """
-#     client = client_from_blobstorage()
-#     # get azure://{container_name}/....
-#     parsed_path = parse_azure_blob_path(blob_path)
-#     os.makedirs(local_path, exist_ok=True)
-#     container_client = client.get_container_client(parsed_path["container"])
-#     for blob in container_client.list_blobs(parsed_path["path"]):
-#         filename = os.path.basename(blob.name)
-#         p = os.path.join(local_path, filename)
-#         print("path: %s" % p)
-#         with open(p, "wb") as o:
-#             blob_data = container_client.download_blob(blob.name)
-#             blob_data.readinto(o)
+        :return [bool]: True if file exists
+        """        
+        
+        client = self.get_blob_service_client(storage_account=storage_account)
+        blob_client = client.get_blob_client(container, file_path)
+        return blob_client.exists()
+    
+    @multi_arguments_decorator(local_support=True)
+    def upload_folder(
+        self,
+        source_path: str = None,
+        source_storage_account: str = None,
+        source_container: str = None,
+        source_file_path: str = None,
+        dest_path: str = None,
+        dest_storage_account: str = None,
+        dest_container: str = None,
+        dest_file_path: str = None,
+    ):
+        """
+        Upload a directory to an azure location. Subdirectories are not currently supported
+
+        :param source_path: str: optional Local path to folder to upload. Defaults to None.
+        :param source_storage_account: str: optional Ignored. Defaults to None.
+        :param source_container: str: optional Ignored. Defaults to None.
+        :param source_file_path: str: optional Ignored. Defaults to None.
+        :param dest_path: str: optional Azure path to upload to. Defaults to None.
+        :param dest_storage_account: str: optional Storage account. Defaults to None.
+        :param dest_container: str: optional Container name. Defaults to None.
+        :param dest_file_path: str: optional Path to folder. Defaults to None.
+
+        :exception ValueError: Raised if source is an Azure path
+        """    
+        if self.is_azure_path(source_path): raise ValueError(f"Expected destination to be local path got azure path: {source_path}")
+
+        container_client = self.get_container_client(storage_account=dest_storage_account, container=dest_container)
+
+        for root, dirs, files in os.walk(source_path):
+            logging.warning("upload folder does not support sub-directories only files will be uploaded")
+            for file in files:
+                file_path = os.path.join(root, file)
+                blob_path = dest_file_path + file
+
+                logging.info(f"Uploading {file_path} to {blob_path}")
+                with open(file_path, "rb") as data:
+                    container_client.upload_blob(name=blob_path, data=data)
+    
+    # @arguments_decorator(local_support=True)
+    # def open(
+    #     self,
+    #     path: str = None,
+    #     storage_account: str = None,
+    #     container: str = None,
+    #     file_path: str = None,
+    #     mode="r", 
+    #     *args, **kwargs
+    #     ):
+    #     """
+    #     wrapper around smart_open so we dont have to pass a blob client everywhere.
+    #     """
+    #     if not path.startswith("azure://") and "w" in mode:
+    #         # if it is local write mode, check the path and create folder if needed
+    #         subdir = os.path.dirname(path)
+    #         if subdir:
+    #             os.makedirs(subdir, exist_ok=True)
+    #     transport_params = {"client": get_or_create_blob_client()}
+    #     if "transport_params" not in kwargs:
+    #         kwargs["transport_params"] = transport_params
+    #     return smart_open.open(path, mode, *args, **kwargs)
