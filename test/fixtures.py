@@ -86,8 +86,31 @@ class MockConnector:
     ):
         return path, storage_account, container, file_path
 
-    @multi_arguments_decorator
+    @multi_arguments_decorator()
     def multi_func(
+        self,
+        source_path: str = None,
+        source_storage_account: str = None,
+        source_container: str = None,
+        source_file_path: str = None,
+        dest_path: str = None,
+        dest_storage_account: str = None,
+        dest_container: str = None,
+        dest_file_path: str = None,
+    ):
+        return (
+            source_path,
+            source_storage_account,
+            source_container,
+            source_file_path,
+            dest_path,
+            dest_storage_account,
+            dest_container,
+            dest_file_path,
+        )
+    
+    @multi_arguments_decorator(local_support=True)
+    def multi_func_local(
         self,
         source_path: str = None,
         source_storage_account: str = None,

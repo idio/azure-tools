@@ -389,6 +389,135 @@ def test_multi_arguments_decorator(
     assert r_dest_container == ex_dest_container
     assert r_dest_file_path == ex_dest_file_path
 
+    # Assert passes right params if local paths supported
+    con = MockConnector(
+        storage_account=source_storage_account, container=source_container
+    )
+
+    (
+        r_source_path,
+        r_source_storage_account,
+        r_source_container,
+        r_source_file_path,
+        r_dest_path,
+        r_dest_storage_account,
+        r_dest_container,
+        r_dest_file_path,
+    ) = con.multi_func_local(
+        source_path=source_path,
+        source_file_path=source_file_path,
+        dest_path=dest_path,
+        dest_storage_account=dest_storage_account,
+        dest_container=dest_container,
+        dest_file_path=dest_file_path,
+    )
+
+    assert r_source_path == ex_source_path
+    assert r_source_storage_account == ex_source_storage_account
+    assert r_source_container == ex_source_container
+    assert r_source_file_path == ex_source_file_path
+    assert r_dest_path == ex_dest_path
+    assert r_dest_storage_account == ex_dest_storage_account
+    assert r_dest_container == ex_dest_container
+    assert r_dest_file_path == ex_dest_file_path
+
+@pytest.mark.parametrize(
+    """
+    source_path, source_storage_account, source_container, source_file_path, dest_path, dest_storage_account, dest_container, dest_file_path,
+    ex_source_path, ex_source_storage_account, ex_source_container, ex_source_file_path, ex_dest_path, ex_dest_storage_account, ex_dest_container, ex_dest_file_path,
+    """,
+    [
+        (
+            "./local/local-test/test.txt",
+            None,
+            None,
+            None,
+            "https://test-account2.blob.core.windows.net/test-container2/test-directory2/test-sub-dir2/test2.txt",
+            None,
+            None,
+            None,
+            "./local/local-test/test.txt",
+            None,
+            None,
+            None,
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+        ),
+        (
+            "https://test-account2.blob.core.windows.net/test-container2/test-directory2/test-sub-dir2/test2.txt",
+            None,
+            None,
+            None,
+            "./local/local-test/test.txt",
+            None,
+            None,
+            None,
+            None,
+            "test-account2",
+            "test-container2",
+            "test-directory2/test-sub-dir2/test2.txt",
+            "./local/local-test/test.txt",
+            None,
+            None,
+            None,
+        ),
+    ]
+)
+def test_multi_arguments_local_decorator(
+    source_path,
+    source_storage_account,
+    source_container,
+    source_file_path,
+    dest_path,
+    dest_storage_account,
+    dest_container,
+    dest_file_path,
+    ex_source_path,
+    ex_source_storage_account,
+    ex_source_container,
+    ex_source_file_path,
+    ex_dest_path,
+    ex_dest_storage_account,
+    ex_dest_container,
+    ex_dest_file_path,
+):
+    """
+    Tests the handling of arguments for a function in connector class with mutliple 
+    """
+    # Assert passes right params if connector not init with params
+    con = MockConnector()
+
+    (
+        r_source_path,
+        r_source_storage_account,
+        r_source_container,
+        r_source_file_path,
+        r_dest_path,
+        r_dest_storage_account,
+        r_dest_container,
+        r_dest_file_path,
+    ) = con.multi_func_local(
+        source_path=source_path,
+        source_storage_account=source_storage_account,
+        source_container=source_container,
+        source_file_path=source_file_path,
+        dest_path=dest_path,
+        dest_storage_account=dest_storage_account,
+        dest_container=dest_container,
+        dest_file_path=dest_file_path,
+    )
+
+    assert r_source_path == ex_source_path
+    assert r_source_storage_account == ex_source_storage_account
+    assert r_source_container == ex_source_container
+    assert r_source_file_path == ex_source_file_path
+    assert r_dest_path == ex_dest_path
+    assert r_dest_storage_account == ex_dest_storage_account
+    assert r_dest_container == ex_dest_container
+    assert r_dest_file_path == ex_dest_file_path
+
 
 @pytest.mark.parametrize(
     "path, storage_account, container, file_path, exception",
