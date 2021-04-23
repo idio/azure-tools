@@ -1,15 +1,6 @@
-# from typing import Container, Iterable
-# from utils import get_blob_storage_url, parse_azure_path
-
 from args_handler import arguments_decorator, multi_arguments_decorator
 from azure.identity._credentials.default import DefaultAzureCredential
-
-# from azure.storage import blob
 from azure.storage.blob import BlobServiceClient, ContainerClient
-
-# from azure.common.client_factory import get_client_from_cli_profile
-# from azure.identity import DefaultAzureCredential
-# from six import Iterator
 import smart_open
 import logging
 import re
@@ -34,7 +25,9 @@ class Connector:
 
         # Create class wide storage account and container clients if names are passed
         if self.storage_account:
-            blob_storage_url = self.get_blob_storage_url(storage_account=self.storage_account)
+            blob_storage_url = self.get_blob_storage_url(
+                storage_account=self.storage_account
+            )
             self.blob_service_client = BlobServiceClient(
                 credential=self.credential, account_url=blob_storage_url
             )
@@ -109,7 +102,7 @@ class Connector:
             "container": container,
             "file_path": filepath,
         }
-    
+
     def is_azure_path(self, path: str) -> bool:
         """
         Returns true if the path is of a recognised azure path format
@@ -117,11 +110,8 @@ class Connector:
         :param path: str: The path to test
 
         :return bool: True if path is of an accepted azure path format
-        """        
-        patterns = [
-            r"https://.*\.blob.core.windows.net",
-            r"azure://"
-        ]
+        """
+        patterns = [r"https://.*\.blob.core.windows.net", r"azure://"]
         return any([bool(re.match(p, path)) for p in patterns])
 
     @arguments_decorator()
@@ -211,7 +201,7 @@ class Connector:
         else:
             blob_iter = container_client.list_blobs()
             return [blob.name for blob in blob_iter]
-    
+
     @multi_arguments_decorator(local_support=True)
     def download_folder(
         self,
@@ -237,12 +227,15 @@ class Connector:
         :param dest_file_path: str: optional Ignored. Defaults to None.
 
         :exception ValueError: Raised when destination path is an azure path
-        """    
+        """
         container_client = self.get_container_client(
             storage_account=source_storage_account, container=source_container
         )
 
-        if self.is_azure_path(dest_path): raise ValueError(f"Expected destination to be local path got azure path: {dest_path}")
+        if self.is_azure_path(dest_path):
+            raise ValueError(
+                f"Expected destination to be local path got azure path: {dest_path}"
+            )
         os.makedirs(dest_path, exist_ok=True)
 
         for blob in container_client.list_blobs(source_file_path):
@@ -253,7 +246,7 @@ class Connector:
                 blob_data = container_client.download_blob(blob.name)
                 blob_data.readinto(f)
             logging.info("Completed Download")
-    
+
     @arguments_decorator()
     def blob_exists(
         self,
@@ -271,12 +264,12 @@ class Connector:
         :param file_path: str: optional path to file. Defaults to None.
 
         :return [bool]: True if file exists
-        """        
-        
+        """
+
         client = self.get_blob_service_client(storage_account=storage_account)
         blob_client = client.get_blob_client(container, file_path)
         return blob_client.exists()
-    
+
     @multi_arguments_decorator(local_support=True)
     def upload_folder(
         self,
@@ -302,13 +295,20 @@ class Connector:
         :param dest_file_path: str: optional Path to folder. Defaults to None.
 
         :exception ValueError: Raised if source is an Azure path
-        """    
-        if self.is_azure_path(source_path): raise ValueError(f"Expected destination to be local path got azure path: {source_path}")
+        """
+        if self.is_azure_path(source_path):
+            raise ValueError(
+                f"Expected destination to be local path got azure path: {source_path}"
+            )
 
-        container_client = self.get_container_client(storage_account=dest_storage_account, container=dest_container)
+        container_client = self.get_container_client(
+            storage_account=dest_storage_account, container=dest_container
+        )
 
         for root, dirs, files in os.walk(source_path):
-            logging.warning("upload folder does not support sub-directories only files will be uploaded")
+            logging.warning(
+                "upload folder does not support sub-directories only files will be uploaded"
+            )
             for file in files:
                 file_path = os.path.join(root, file)
                 blob_path = dest_file_path + file
@@ -316,7 +316,7 @@ class Connector:
                 logging.info(f"Uploading {file_path} to {blob_path}")
                 with open(file_path, "rb") as data:
                     container_client.upload_blob(name=blob_path, data=data)
-    
+
     @arguments_decorator(local_support=True)
     def open(
         self,
@@ -324,9 +324,10 @@ class Connector:
         storage_account: str = None,
         container: str = None,
         file_path: str = None,
-        mode="r", 
-        *args, **kwargs
-        ):
+        mode="r",
+        *args,
+        **kwargs,
+    ):
         """
         wrapper around smart_open so we dont have to pass a blob client everywhere.
 
@@ -337,14 +338,16 @@ class Connector:
         :param mode: str: optional open mode. Defaults to "r".
 
         :return [smart_open.open]: Opens both local and azure files
-        """        
+        """
         if path and not self.is_azure_path(path) and "w" in mode:
-                # if it is local write mode, check the path and create folder if needed
-                subdir = os.path.dirname(path)
-                if subdir:
-                    os.makedirs(subdir, exist_ok=True)
+            # if it is local write mode, check the path and create folder if needed
+            subdir = os.path.dirname(path)
+            if subdir:
+                os.makedirs(subdir, exist_ok=True)
         if storage_account:
-            transport_params = {"client": self.get_blob_service_client(storage_account=storage_account)}
+            transport_params = {
+                "client": self.get_blob_service_client(storage_account=storage_account)
+            }
         else:
             transport_params = {"client": None}
         if "transport_params" not in kwargs:

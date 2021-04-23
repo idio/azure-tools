@@ -85,7 +85,7 @@ class MockConnector:
         file_path: str = None,
     ):
         return path, storage_account, container, file_path
-    
+
     @arguments_decorator()
     def func_extra_args(
         self,
@@ -93,7 +93,7 @@ class MockConnector:
         storage_account: str = None,
         container: str = None,
         file_path: str = None,
-        extra: str = None
+        extra: str = None,
     ):
         return path, storage_account, container, file_path, extra
 
@@ -119,7 +119,7 @@ class MockConnector:
             dest_container,
             dest_file_path,
         )
-    
+
     @multi_arguments_decorator()
     def multi_func_extra_args(
         self,
@@ -131,7 +131,7 @@ class MockConnector:
         dest_storage_account: str = None,
         dest_container: str = None,
         dest_file_path: str = None,
-        extra: str = None
+        extra: str = None,
     ):
         return (
             source_path,
@@ -142,9 +142,9 @@ class MockConnector:
             dest_storage_account,
             dest_container,
             dest_file_path,
-            extra
+            extra,
         )
-    
+
     @multi_arguments_decorator(local_support=True)
     def multi_func_local(
         self,

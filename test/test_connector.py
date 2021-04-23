@@ -80,7 +80,7 @@ def test_is_azure_path(path, expected, patched_connector):
             "test-account",
             "test-container",
             "test-directory/test-sub-dir/test.txt",
-            None
+            None,
         ),
         (
             "https://test-account.blob.core.windows.net/test-container/test-directory/test-sub-dir/test.txt",
@@ -152,7 +152,7 @@ def test_is_azure_path(path, expected, patched_connector):
             "test-account",
             "test-container",
             "test-directory/test-sub-dir/test.txt",
-            "test-arg"
+            "test-arg",
         ),
     ],
 )
@@ -166,7 +166,7 @@ def test_arguments_decorator(
     expected_storage_account,
     expected_container,
     expected_file_path,
-    expected_extra
+    expected_extra,
 ):
     """
     Tests the handling of arguments for a function in connector class
@@ -216,7 +216,7 @@ def test_arguments_decorator(
         storage_account=storage_account,
         container=container,
         file_path=file_path,
-        extra=extra
+        extra=extra,
     )
 
     assert r_path == expected_path
@@ -375,7 +375,7 @@ def test_multi_arguments_decorator(
     ex_dest_storage_account,
     ex_dest_container,
     ex_dest_file_path,
-    ex_extra
+    ex_extra,
 ):
     """
     Tests the handling of arguments for a function in connector class
@@ -490,7 +490,7 @@ def test_multi_arguments_decorator(
         r_dest_storage_account,
         r_dest_container,
         r_dest_file_path,
-        r_extra
+        r_extra,
     ) = con.multi_func_extra_args(
         source_path=source_path,
         source_file_path=source_file_path,
@@ -498,7 +498,7 @@ def test_multi_arguments_decorator(
         dest_storage_account=dest_storage_account,
         dest_container=dest_container,
         dest_file_path=dest_file_path,
-        extra=extra
+        extra=extra,
     )
 
     assert r_source_path == ex_source_path
@@ -510,6 +510,7 @@ def test_multi_arguments_decorator(
     assert r_dest_container == ex_dest_container
     assert r_dest_file_path == ex_dest_file_path
     assert r_extra == ex_extra
+
 
 @pytest.mark.parametrize(
     """
@@ -553,7 +554,7 @@ def test_multi_arguments_decorator(
             None,
             None,
         ),
-    ]
+    ],
 )
 def test_multi_arguments_local_decorator(
     source_path,
@@ -574,7 +575,7 @@ def test_multi_arguments_local_decorator(
     ex_dest_file_path,
 ):
     """
-    Tests the handling of arguments for a function in connector class with mutliple 
+    Tests the handling of arguments for a function in connector class with mutliple
     """
     # Assert passes right params if connector not init with params
     con = MockConnector()
@@ -824,17 +825,3 @@ def test_get_blob_service_client(
         mock_bs_client.assert_called_with(
             credential="mock-cred", account_url=expected_blob_url
         )
-
-
-# def test_list_blobs(patched_connector):
-#     with patch("connector.ContainerClient") as mock_con_client:
-#         def mock_blob():
-#             pass
-
-#         mock_blob.name = "blob"
-#         mock_con_client.return_value.list_blobs.return_value = [mock_blob]
-
-#         con = patched_connector()
-#         result = con.list_blobs(storage_account="storage", container="container")
-#         # mock_con_client.return_value.list_blobs.assert_called_with()
-#         # assert result == ["blob"]

@@ -79,12 +79,12 @@ def multi_arguments_decorator(local_support=False):
                     kwargs["source_storage_account"] = storage_account
                     kwargs["source_container"] = paths["container"]
                     kwargs["source_file_path"] = paths["file_path"]
-                    
+
                 elif local_support:
                     kwargs["source_path"] = source_path
                     kwargs["source_storage_account"] = None
                     kwargs["source_container"] = None
-                    kwargs["source_file_path"] = None                  
+                    kwargs["source_file_path"] = None
                 else:
                     raise ValueError(
                         f"Path: {source_path} is not an azure path and local_support is not enabled. Try enabling for this function in the args handler decorator"
@@ -96,16 +96,11 @@ def multi_arguments_decorator(local_support=False):
                     else inst.storage_account
                 )
                 kwargs["source_container"] = (
-                    source_container
-                    if source_container
-                    else inst.container
+                    source_container if source_container else inst.container
                 )
                 kwargs["source_file_path"] = source_file_path
                 kwargs["source_path"] = None
-                # kwargs["source_storage_account"] = storage_account
-                # kwargs["source_container"] = paths["container"]
-                # kwargs["source_file_path"] = paths["file_path"]
-                
+
             if dest_path:
                 if inst.is_azure_path(dest_path):
                     paths = inst.parse_azure_path(dest_path)
@@ -123,7 +118,7 @@ def multi_arguments_decorator(local_support=False):
                     kwargs["dest_storage_account"] = storage_account
                     kwargs["dest_container"] = paths["container"]
                     kwargs["dest_file_path"] = paths["file_path"]
-                    
+
                 elif local_support:
                     kwargs["dest_path"] = dest_path
                     kwargs["dest_storage_account"] = None
@@ -138,7 +133,7 @@ def multi_arguments_decorator(local_support=False):
                 kwargs["dest_storage_account"] = dest_storage_account
                 kwargs["dest_container"] = dest_container
                 kwargs["dest_file_path"] = dest_file_path
-            
+
             return func(*args, **kwargs)
 
         return wrapper
