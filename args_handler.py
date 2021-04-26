@@ -53,6 +53,12 @@ def arguments_decorator(local_support=False):
                 )
                 kwargs["container"] = container if container else inst.container
                 kwargs["file_path"] = file_path
+
+                if kwargs["storage_account"] is None:
+                    raise ValueError("Storage account is None, pass to the function or initialise the connector")
+                if kwargs["storage_account"] and kwargs["file_path"] and not kwargs["container"]:
+                    raise ValueError("Container is None, pass to function or initialise Connector")
+
             return func(*args, **kwargs)
 
         return wrapper

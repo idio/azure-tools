@@ -609,7 +609,6 @@ def test_multi_arguments_local_decorator(
     assert r_dest_container == ex_dest_container
     assert r_dest_file_path == ex_dest_file_path
 
-
 @pytest.mark.parametrize(
     "path, storage_account, container, file_path, exception",
     [
@@ -618,9 +617,23 @@ def test_multi_arguments_local_decorator(
             None,
             None,
             None,
-            ValueError,
+            ValueError
+        ),
+        (
+            None,
+            None,
+            None,
+            None,
+            ValueError
+        ),
+        (
+            None,
+            "test-account",
+            None,
+            "testy/test/file",
+            ValueError
         )
-    ],
+    ]
 )
 def test_arguments_decorator_errors(
     path, storage_account, container, file_path, exception
@@ -629,9 +642,9 @@ def test_arguments_decorator_errors(
     Tests the handling of arguments for a function in connector class
     """
 
-    con = MockConnector(storage_account=storage_account, container=container)
+    con = MockConnector()
     with pytest.raises(exception):
-        con.func(path=path, file_path=file_path)
+        con.func(path=path, storage_account=storage_account, container=container, file_path=file_path)
 
 
 def test_connector_init(patched_creds_connector):
@@ -789,7 +802,7 @@ def test_get_container_client(
             None,
             None,
             "https://test-account.blob.core.windows.net/",
-        )
+        ),
     ],
 )
 def test_get_blob_service_client(
