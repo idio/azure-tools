@@ -1,4 +1,17 @@
 def arguments_decorator(local_support=False):
+    """
+    This decorator handles the passing of arguments to azure tools methods. It expects a location to be defined by:
+
+    :param path: str: optional An azure path of the format azure://<container>/path or https://<storage-account>.blob.core.windows.net/<container>/<path>
+    :param storage-account: str: The name of the azure storage account
+    :param container: str: The name of a container in the account
+    :param file_path: str: path from container to file or directory
+
+    The decorator will parse the path if it is passed and ensure the function is always called with the storage-account, container and file_path
+    parameters.
+
+    :param local_support: bool: optional If True local paths can be passed to the path parameter, function will be called with other params as None. Defaults to False.
+    """    
     def decorator(func):
         def wrapper(*args, **kwargs):
             inst = args[0]
@@ -48,6 +61,19 @@ def arguments_decorator(local_support=False):
 
 
 def multi_arguments_decorator(local_support=False):
+    """
+    This decorator handles the passing of arguments to azure tools methods that require two paths, such as copy/download/upload. It expects a location to be defined by source and destination parameters:
+
+    :param source/dest_path: str: optional An azure path of the format azure://<container>/path or https://<storage-account>.blob.core.windows.net/<container>/<path>
+    :param source/dest_storage-account: str: The name of the azure storage account
+    :param source/dest_container: str: The name of a container in the account
+    :param source/dest_file_path: str: path from container to file or directory
+
+    The decorator will parse the path if it is passed and ensure the function is always called with the storage-account, container and file_path
+    parameters.
+
+    :param local_support: bool: optional If True local paths can be passed to the path parameter, function will be called with other params as None. Defaults to False.
+    """
     def decorator(func):
         def wrapper(*args, **kwargs):
             inst = args[0]
