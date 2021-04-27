@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
-from args_handler import arguments_decorator, multi_arguments_decorator
-from connector import *
+from aztools.args_handler import arguments_decorator, multi_arguments_decorator
+from aztools.storage import *
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def patched_creds_connector():
     """
 
     def connector_factory(*args, **kwargs):
-        with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
+        with patch("aztools.storage.DefaultAzureCredential", return_value="mock-cred"):
             return Connector(*args, **kwargs)
 
     return connector_factory
@@ -41,8 +41,8 @@ def patched_connector():
     """
 
     def connector_factory(*args, **kwargs):
-        with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
-            with patch("connector.BlobServiceClient") as mock_client:
+        with patch("aztools.storage.DefaultAzureCredential", return_value="mock-cred"):
+            with patch("aztools.storage.BlobServiceClient") as mock_client:
                 # A fixture that has a name attribute like a container is expected to
                 def mock_container():
                     pass
@@ -169,8 +169,8 @@ class MockConnector:
         )
 
     def parse_azure_path(self, path: str) -> dict:
-        with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
-            with patch("connector.BlobServiceClient") as mock_client:
+        with patch("aztools.storage.DefaultAzureCredential", return_value="mock-cred"):
+            with patch("aztools.storage.BlobServiceClient") as mock_client:
                 # A fixture that has a name attribute like a container is expected to
                 def mock_container():
                     pass
@@ -184,7 +184,7 @@ class MockConnector:
                 return con.parse_azure_path(path)
 
     def is_azure_path(self, path: str) -> bool:
-        with patch("connector.DefaultAzureCredential", return_value="mock-cred"):
-            with patch("connector.BlobServiceClient"):
+        with patch("aztools.storage.DefaultAzureCredential", return_value="mock-cred"):
+            with patch("aztools.storage.BlobServiceClient"):
                 con = Connector()
                 return con.is_azure_path(path)
