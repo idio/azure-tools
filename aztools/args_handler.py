@@ -134,7 +134,7 @@ def multi_arguments_decorator(local_support=False):
                 kwargs["source_path"] = None
                 if kwargs["source_storage_account"] is None:
                     raise ValueError("Source Storage account is None, pass to the function or initialise the connector")
-                if kwargs["source_storage_account"] and kwargs["file_path"] and not kwargs["container"]:
+                if kwargs["source_storage_account"] and kwargs["source_file_path"] and not kwargs["source_container"]:
                     raise ValueError("Source Container is None, pass to function or initialise Connector")
 
             if dest_path:
@@ -171,7 +171,7 @@ def multi_arguments_decorator(local_support=False):
                 kwargs["dest_file_path"] = dest_file_path
                 if kwargs["dest_storage_account"] is None:
                     raise ValueError("Destination Storage account is None, pass to the function")
-                if kwargs["dest_storage_account"] and kwargs["file_path"] and not kwargs["container"]:
+                if kwargs["dest_storage_account"] and kwargs["dest_file_path"] and not kwargs["dest_container"]:
                     raise ValueError("Destinantion Container is None, pass to function")
 
             return func(*args, **kwargs)
