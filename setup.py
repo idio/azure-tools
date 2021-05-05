@@ -10,7 +10,7 @@ setup(
     url='https://github.com/idio/azure_tools',
     author="Fandango",
     author_email="george.phillips@episerver.com",
-    packages=find_packages(where="aztools"),
+    packages=['aztools'], #find_packages(where="aztools"),
     install_requires=[
         "azure-common==1.1.26",
         "azure-identity==1.5.0",
