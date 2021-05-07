@@ -1,4 +1,4 @@
-from shell import cmd_output
+from aztools.shell import cmd_output
 
 def acr_image_exists(self, repository, tag, account="fandango"):
     """
