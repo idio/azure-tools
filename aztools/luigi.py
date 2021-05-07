@@ -1,4 +1,3 @@
-from shell import cmd_output
 from aztools.container_registry import acr_image_exists
 from azure.core.exceptions import ResourceNotFoundError
 from connector import Connector
