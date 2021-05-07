@@ -18,6 +18,7 @@ setup(
         "azure-storage-blob==12.6.0",
         "smart_open==3.0.0",
         "smart_open[azure]==3.0.0",
+        "shell"
     ],
 
     classifiers=[      
