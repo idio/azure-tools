@@ -3,6 +3,9 @@ from setuptools import setup
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='azure_tools',
     version='0.0.1',    
@@ -11,15 +14,7 @@ setup(
     author="Fandango",
     author_email="george.phillips@episerver.com",
     packages=['aztools'], #find_packages(where="aztools"),
-    install_requires=[
-        "azure-common==1.1.26",
-        "azure-identity==1.5.0",
-        "azure-kusto-data==1.0.3",
-        "azure-storage-blob==12.6.0",
-        "smart_open==3.0.0",
-        "smart_open[azure]==3.0.0"
-    ],
-
+    install_requires=requirements,
     classifiers=[      
         'Programming Language :: Python :: 3.8',
     ],
