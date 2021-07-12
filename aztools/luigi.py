@@ -28,6 +28,9 @@ class AzureBlobTarget():
         container: str = None,
         file_path: str = None
     ):
+        self.storage_account = storage_account
+        self.container = container
+        self.file_path = file_path
         self.path = str(path)
         self.client = Connector(path=path, storage_account=storage_account)
 
