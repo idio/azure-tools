@@ -16,7 +16,7 @@ setup(
     packages=['aztools'], #find_packages(where="aztools"),
     install_requires=requirements,
     classifiers=[      
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.7',
     ],
-    python_requires=">=3.8"
+    python_requires=">=3.7"
 )
