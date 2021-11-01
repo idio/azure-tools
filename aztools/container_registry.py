@@ -1,6 +1,6 @@
 from aztools.shell import cmd_output
 
-def acr_image_exists(self, repository, tag, account="fandango"):
+def acr_image_exists(repository, tag, account="fandango"):
     """
     checks whether a docker image exists in an azure ACR repository
     """
