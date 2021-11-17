@@ -1,6 +1,7 @@
 pytest
 azure-common==1.1.27
-azure-identity==1.7.1
+azure-identity<1.7.0
+azure-kusto-data==2.3.2
 azure-storage-blob==12.9.0
 smart_open==5.2.1
 smart_open[azure]==5.2.1
