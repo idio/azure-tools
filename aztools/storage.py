@@ -6,11 +6,10 @@ import logging
 import re
 import os
 
+logging.basicConfig(level=logging.WARNING)
 
 class Connector:
     def __init__(self, path=None, storage_account=None, container=None):
-
-        logging.basicConfig(level=logging.INFO)
 
         self.storage_account = storage_account
         self.container = container
