@@ -1,3 +1,5 @@
+import logging 
+
 from aztools.container_registry import acr_image_exists
 from aztools.storage import Connector
 from azure.core.exceptions import ResourceNotFoundError
@@ -30,6 +32,7 @@ class AzureBlobTarget():
     ):
         self.path = str(path)
         self.client = Connector(path=path, storage_account=storage_account)
+        self.logger = logging.getLogger(__name__)
 
     def exists(self):
         try:
@@ -39,5 +42,5 @@ class AzureBlobTarget():
             file_exists = False
         except ResourceNotFoundError:
             file_exists = False
-        print("The file: {} exists = {}".format(self.path, file_exists))
+        self.logger.info("The file: {} exists = {}".format(self.path, file_exists))
         return file_exists

@@ -20,5 +20,6 @@ class QuietAzureTokenLogs(logging.Filter):
 
 def init_loggers():
     logging.basicConfig(level=logging.WARNING)
+    logging.getLogger("aztools.luigi").setLevel(logging.INFO)
     logging.getLogger("azure.identity._internal.decorators").setLevel(logging.INFO)
     logging.getLogger("azure.identity._internal.decorators").addFilter(QuietAzureTokenLogs())
