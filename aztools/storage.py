@@ -6,13 +6,14 @@ import logging
 import re
 import os
 
-logging.basicConfig(level=logging.WARNING)
 
 class Connector:
     def __init__(self, path=None, storage_account=None, container=None):
 
         self.storage_account = storage_account
         self.container = container
+
+        self.logger = logging.getLogger(__name__)
 
         if path:
             parsed_path = self.parse_azure_path(path)
