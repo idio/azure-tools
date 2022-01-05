@@ -10,10 +10,10 @@ import os
 class Connector:
     def __init__(self, path=None, storage_account=None, container=None):
 
-        logging.basicConfig(level=logging.INFO)
-
         self.storage_account = storage_account
         self.container = container
+
+        self.logger = logging.getLogger(__name__)
 
         if path:
             parsed_path = self.parse_azure_path(path)
@@ -242,10 +242,10 @@ class Connector:
             file_name = os.path.basename(blob.name)
             local_path = os.path.join(dest_path, file_name)
             with open(local_path, "wb") as f:
-                logging.info(f"Downloading {blob.name} to {local_path}")
+                self.logger.info(f"Downloading {blob.name} to {local_path}")
                 blob_data = container_client.download_blob(blob.name)
                 blob_data.readinto(f)
-            logging.info("Completed Download")
+            self.logger.info("Completed Download")
 
     @arguments_decorator()
     def blob_exists(
@@ -306,14 +306,14 @@ class Connector:
         )
 
         for root, dirs, files in os.walk(source_path):
-            logging.warning(
+            self.logger.warning(
                 "upload folder does not support sub-directories only files will be uploaded"
             )
             for file in files:
                 file_path = os.path.join(root, file)
                 blob_path = dest_file_path + file
 
-                logging.info(f"Uploading {file_path} to {blob_path}")
+                self.logger.info(f"Uploading {file_path} to {blob_path}")
                 with open(file_path, "rb") as data:
                     container_client.upload_blob(name=blob_path, data=data)
 
