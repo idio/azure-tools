@@ -1,4 +1,5 @@
 pytest
+azure-keyvault-secrets==4.3.0
 azure-common==1.1.27
 azure-identity<1.7.0
 azure-kusto-data==2.3.2
