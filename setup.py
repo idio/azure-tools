@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+    requirements = [r for r in f.read().splitlines() if r not in ["pytest", "setuptools"]]
 
 setup(
     name='azure_tools',
@@ -13,7 +13,7 @@ setup(
     url='https://github.com/idio/azure_tools',
     author="Fandango",
     author_email="george.phillips@episerver.com",
-    packages=['aztools'], #find_packages(where="aztools"),
+    packages=['aztools'],
     install_requires=requirements,
     classifiers=[      
         'Programming Language :: Python :: 3.7',
