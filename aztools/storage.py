@@ -7,6 +7,41 @@ import re
 import os
 
 
+def parse_azure_path(storage_account: str, container: str, path: str) -> dict:
+    """
+    Parse an azure url into : storage_account, container and filepath.
+    If passing a url of the for azure://container/filepath the storage account is
+    taken from the class instance. If there is no storage account passed for the class
+    the storage account will be None.
+
+    :param path: str: The azure blob path
+    :return: dict: A dictionary containing the container name and filepath
+    """
+
+    if path.startswith("https://"):
+        storage_account = re.findall(
+            r"https://(.*)\.blob\.core\.windows\.net", path
+        )[0]
+        path = path.replace(f"https://{storage_account}.blob.core.windows.net/", "")
+        split_path = path.split("/")
+        container = split_path.pop(0)
+        filepath = "/".join(split_path)
+
+    elif path.startswith("azure://"):
+        path = path.replace("azure://", "")
+        split_path = path.split("/")
+        container = split_path.pop(0)
+        filepath = "/".join(split_path)
+
+    else:
+        filepath = path
+    return {
+        "storage_account": storage_account,
+        "container": container,
+        "file_path": filepath,
+    }
+
+
 class Connector:
     def __init__(self, path=None, storage_account=None, container=None):
 
@@ -68,41 +103,8 @@ class Connector:
         return f"https://{storage_account}.blob.core.windows.net/"
 
     def parse_azure_path(self, path: str) -> dict:
-        """
-        Parse an azure url into : storage_account, container and filepath.
-        If passing a url of the for azure://container/filepath the storage account is
-        taken from the class instance. If there is no storage account passed for the class
-        the storage account will be None.
-
-        :param path: str: The azure blob path
-        :return: dict: A dictionary containing the container name and filepath
-        """
-        storage_account = self.storage_account
-        container = self.container
-
-        if path.startswith("https://"):
-            storage_account = re.findall(
-                r"https://(.*)\.blob\.core\.windows\.net", path
-            )[0]
-            path = path.replace(f"https://{storage_account}.blob.core.windows.net/", "")
-            split_path = path.split("/")
-            container = split_path.pop(0)
-            filepath = "/".join(split_path)
-
-        elif path.startswith("azure://"):
-            path = path.replace("azure://", "")
-            split_path = path.split("/")
-            container = split_path.pop(0)
-            filepath = "/".join(split_path)
-
-        else:
-            filepath = path
-        return {
-            "storage_account": storage_account,
-            "container": container,
-            "file_path": filepath,
-        }
-
+        return parse_azure_path(self.storage_account, self.container, path)
+    
     def is_azure_path(self, path: str) -> bool:
         """
         Returns true if the path is of a recognised azure path format
