@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from aztools.storage import Connector
+from azure_tools.storage import Connector
 from tests.fixtures import *
 
 
@@ -648,7 +648,7 @@ def test_arguments_decorator_errors(
 
 
 def test_connector_init(patched_creds_connector):
-    with patch("aztools.storage.BlobServiceClient") as mock_client:
+    with patch("azure_tools.storage.BlobServiceClient") as mock_client:
         # Asserting that no clients are intialised if the connector is not initialised with params
         con = patched_creds_connector()
         mock_client.assert_not_called()
@@ -759,7 +759,7 @@ def test_blob_storage_url(
 def test_get_container_client(
     path, storage_account, container, file_path, patched_connector
 ):
-    with patch("aztools.storage.Connector.get_blob_service_client") as mock_bs_client:
+    with patch("azure_tools.storage.Connector.get_blob_service_client") as mock_bs_client:
         # Assert tests with init connector
         con = patched_connector(storage_account=storage_account, container=container)
 
@@ -808,7 +808,7 @@ def test_get_container_client(
 def test_get_blob_service_client(
     path, storage_account, container, file_path, expected_blob_url, patched_connector
 ):
-    with patch("aztools.storage.BlobServiceClient") as mock_bs_client:
+    with patch("azure_tools.storage.BlobServiceClient") as mock_bs_client:
         # Assert tests with init connector
         con = patched_connector(storage_account=storage_account, container=container)
 

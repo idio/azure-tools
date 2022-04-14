@@ -1,6 +1,6 @@
 import logging
 
-from aztools.logging import QuietAzureTokenLogs
+from azure_tools.logging import QuietAzureTokenLogs
 
 
 def test_quiet_azure_logs():

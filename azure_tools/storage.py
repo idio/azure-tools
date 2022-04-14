@@ -1,4 +1,4 @@
-from aztools.args_handler import arguments_decorator, multi_arguments_decorator
+from azure_tools.args_handler import arguments_decorator, multi_arguments_decorator
 from azure.identity._credentials.default import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, ContainerClient
 import smart_open

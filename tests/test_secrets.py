@@ -1,4 +1,4 @@
-from aztools.secrets import AzureSecretStore
+from azure_tools.secrets import AzureSecretStore
 
 
 # def test_azure_secret_store():

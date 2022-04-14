@@ -13,7 +13,7 @@ setup(
     url='https://github.com/idio/azure_tools',
     author="Fandango",
     author_email="george.phillips@episerver.com",
-    packages=['aztools'],
+    packages=['azure_tools'],
     install_requires=requirements,
     classifiers=[      
         'Programming Language :: Python :: 3.7',

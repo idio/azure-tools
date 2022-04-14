@@ -1,7 +1,7 @@
 import logging 
 
-from aztools.container_registry import acr_image_exists
-from aztools.storage import Connector
+from azure_tools.container_registry import acr_image_exists
+from azure_tools.storage import Connector
 from azure.core.exceptions import ResourceNotFoundError
 
 
