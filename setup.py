@@ -10,7 +10,7 @@ setup(
     name='azure_tools',
     version='0.0.1',    
     description='Python tools for working with azure',
-    url='https://github.com/idio/azure_tools',
+    url='https://github.com/idio/azure_tools@azure-identity',
     author="Fandango",
     author_email="george.phillips@episerver.com",
     packages=['aztools'], #find_packages(where="aztools"),
