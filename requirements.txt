@@ -1,9 +1,9 @@
 pytest
-azure-common==1.1.27
-azure-identity==1.13.0
-azure-kusto-data==1.0.3
-azure-storage-blob==12.6.0
-smart_open==5.2.0
-smart_open[azure]==5.2.0
+azure-common==1.1.28
+azure-identity==1.19.0
+azure-kusto-data==4.6.1
+azure-storage-blob==12.23.1
+smart_open==7.0.5
+smart_open[azure]==7.0.5
 setuptools
-azure-keyvault-secrets==4.7.0
+azure-keyvault-secrets==4.9.0
