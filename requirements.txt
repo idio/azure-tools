@@ -1,6 +1,6 @@
 pytest
 azure-common==1.1.28
-azure-identity==1.19.0
+azure-identity==1.23.0
 azure-kusto-data==4.6.1
 azure-storage-blob==12.23.1
 smart_open==7.0.5
